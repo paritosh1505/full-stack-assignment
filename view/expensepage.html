@@ -8,9 +8,11 @@
     <title>document</title>
 </head>
 <body>
-    <nav class="bg-cyan-800 h-10 ">
-        <h1 class="bg-cyan-900 text-slate-50 text-center h-8">User Expenses</h1>
+    <nav class="bg-cyan-900 h-16 flex justify-between items-center">
+        <h1 class="bg-cyan-900 text-slate-50 text-center h-8 mt-3 text-lg mr-3">User Expenses</h1>
+        <button class="h-6 border text-slate-50 w-36 rounded-xl hover:bg-blue-600" id="premium" name="premium">Buy Premium</button>
       </nav>
+      
 <div class="bg-blue-300 h-screen flex flex-col items-center">
     <form class="bg-teal-800 h-72 m justify-center inline-block mb-4">
             <div class="space-x-10 py-5 px-4">
@@ -45,33 +47,23 @@
     
     
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script>
-        function decryptTokenValue(tokenvalue) {
-  const token = tokenvalue;
-  const [header, payload, signature] = token.split('.');
 
-  const decoded_payload = atob(payload);
-  const payload_data = JSON.parse(decoded_payload);
-  const user_id = payload_data.userId;
-  const username = payload_data.name;
-
-  return user_id;
-}
 
          async function addexpense(event){
-            event.preventDefault()
             try{
+                event.preventDefault()
                 const token_1= localStorage.getItem('token');
-                const username = decryptTokenValue(token_1);
+                //const username = decryptTokenValue(token_1);
                 
                 //console.log(event.target.form.price.value);
                 const details={
                     price:event.target.form.cost.value,
                     description: event.target.form.description.value,
                     category: event.target.form.category.value,
-                    tokenvalue :username
                 }
-                const data = await axios.post('http://localhost:3000/expense',details)
+                const data = await axios.post('http://localhost:3000/expense', details,{headers: {"Authorisation": token_1}})
                     if(data.status===200){
                       showOnScreen(details)
                     }
@@ -114,7 +106,8 @@
 
     function deleteUser(id){
         console.log(id);
-       axios.delete(`http://localhost:3000/delete/${id}`)
+        const token = localStorage.getItem('token');
+       axios.delete(`http://localhost:3000/delete/${id}`, {headers: {"Authorisation": token}})
           removeuserfromScreen(id);
 
     }
@@ -125,6 +118,42 @@
         console.log("%%", deletelist);
             list.removeChild(deletelist)
     }
+                     
+document.getElementById('premium').onclick = async function(e){
+    const token = localStorage.getItem('token')
+    console.log("%^%%^", token)
+    //const response = await axios.get('http://localhost:3000/purchasepremiumship');
+                                                            
+
+   const response = await axios.get('http://localhost:3000/purchase/purchasepremiumship', {headers: {"Authorisation": token}});
+    console.log(response);
+    var options= {
+        "key": response.data.key_id,
+        "order_id": response.data.order.id,
+        "handler": async function(response){
+            await axios.post('http://localhost:3000/purchase/updatetransactionstatus',{
+                order_id: options.order_id,
+                payment_id: response.razorpay_payment_id,
+            },{headers: {"Authorisation": token} })
+          
+            alert('You are a premium user now')
+        }
+    }
+    const rzrpay1 = new Razorpay(options);
+    rzrpay1.open();
+    e.preventDefault();
+
+    rzrpay1.on('payment.failed', async function(response){
+        await axios.post('http://localhost:3000/purchase/updatefailedtransaction',{
+                order_id: options.order_id,
+                payment_id: response.razorpay_payment_id,
+            },{headers: {"Authorisation": token} })
+       alert('something went wrong')
+
+    });
+
+}
+
         
 
     </script>

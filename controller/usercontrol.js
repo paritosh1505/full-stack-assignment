@@ -95,7 +95,7 @@ exports.login= async(req,res,next)=>{
              price:price,
              description:description,
              category:category,
-             userId:req.body.tokenvalue
+             userId:req.user.id
           });
           res.status(200).json({newdata: data}) 
       }
@@ -128,13 +128,17 @@ exports.login= async(req,res,next)=>{
        const id= req.params.id;
        expensetable.destroy({
         where:{
-          "id":id
+          "id": id,
+          userId: req.user.id
         }
-       }).then((response)=>{
-        res.status(200);
+       }).then((noofrows)=>{
+        if(noofrows===0){
+          return res.status(404).json({success: false, message: 'Expense dosent belongs to the user'})
+        }
+       return res.status(200).json({success: true, message:'Deleted successfully'})
        }).catch((err)=>{
         console.log(err);
-        res.status(501);
+        res.status(500).json({success:true, message:'failed'});
        })
     }
 
