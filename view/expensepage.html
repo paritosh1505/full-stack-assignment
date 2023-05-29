@@ -36,12 +36,15 @@
                     <option value="travel">Travel</option>
                   </select>
             </div>
-            <div class="text-center mx-auto py-4 w-36 rounded-xl">
-                <button class="bg-slate-500 text-red-100 w-36 rounded-xl hover:bg-blue-600" onclick="addexpense(event)">AddExpense</button>
+            <div class="text-center mx-auto py-4 flex justify-between" id ="SubmitButton">
+                <button class="bg-slate-500 text-red-100 w-35 rounded-xl hover:bg-blue-600 items-center ml-4" onclick="addexpense(event)">AddExpense</button>
+            
             </div>
         </form>
         
             <ul id="list"></ul>
+
+            <ul id="leaders"></ul>
         
     </div>
     
@@ -74,7 +77,7 @@
         }
 
         function showOnScreen(data){
-            console.log("###",data);
+           // console.log("###",data);
             user = {
                 id:'',
                 price:'',
@@ -95,10 +98,21 @@
 
          window.addEventListener('DOMContentLoaded', ()=>{
             const token= localStorage.getItem('token');
-    axios.get("http://localhost:3000/data", {headers: {"Authorisation": token}}).then((response)=>{
-   for(var i =0;i<response.data.newentry.length;i++){
-    showOnScreen(response.data.newentry[i])
-   }
+            axios.get("http://localhost:3000/data", {headers: {"Authorisation": token}}).then((response)=>{
+            if(response.data.ispremiumuser=== true){
+            // const userbar = document.getElementById('premium');
+            // const span = document.createElement('span');
+            // span.style.color = 'white';
+            // const premium = document.createTextNode('You are a premium User');
+            // span.append(premium)
+           
+            // userbar.parentNode.replaceChild(span,userbar)
+            premiumFeatures();
+        }
+           // console.log("&777777", response);
+           for(var i =0;i<response.data.newentry.length;i++){
+           showOnScreen(response.data.newentry[i])
+              }
 
     }).catch(err=>console.log(err))
   })
@@ -136,12 +150,16 @@ document.getElementById('premium').onclick = async function(e){
                 payment_id: response.razorpay_payment_id,
             },{headers: {"Authorisation": token} })
           
-            alert('You are a premium user now')
+           // alert('You are a premium user now')
+            premiumFeatures();
+           
+
+           
         }
     }
     const rzrpay1 = new Razorpay(options);
     rzrpay1.open();
-    e.preventDefault();
+    e.preventDefault()
 
     rzrpay1.on('payment.failed', async function(response){
         await axios.post('http://localhost:3000/purchase/updatefailedtransaction',{
@@ -154,6 +172,63 @@ document.getElementById('premium').onclick = async function(e){
 
 }
 
+   function premiumFeatures(){
+   // e.preventDefault()
+    const token = localStorage.getItem('token');
+        const userbar = document.getElementById('premium');
+        const premButton = document.getElementById('SubmitButton');
+            const span = document.createElement('span');
+            span.style.color = 'white';
+            const premium = document.createTextNode('You are a premium User');
+            span.append(premium);
+            userbar.parentNode.replaceChild(span,userbar)
+
+            const btn = document.createElement('button');
+            btn.className = 'bg-slate-500 text-red-100 w-30 rounded-xl hover:bg-blue-600 mr-2';
+            btn.id = 'leaderboard';
+
+            const text = document.createTextNode('ShowLeaderboard');
+            btn.appendChild(text);
+
+            //premButton.innerHTML= '';
+            premButton.appendChild(btn);
+            // //userbar.appendChild(btn);
+
+            document.getElementById('leaderboard').onclick = async function(e){
+                e.preventDefault()
+                console.log("helloooo darlingssssssss");
+
+                const response = await axios.get('http://localhost:3000/purchase/premiumuserdata', {headers: {"Authorisation": token}});
+
+                const firstNode = document.getElementById('leaders');
+                
+               const heading = document.createElement('div');
+               heading.textContent= "Expenses Leaderboard";
+               heading.style.fontWeight= "bold"
+              
+                
+
+                for(var i=0;i<response.data.entry.length;i++){
+                    if(i==0){
+                        
+                        firstNode.append(heading)
+                    }
+      const inputData= `<li id=${response.data.entry[i].id}> ${response.data.entry[i].name} - ${response.data.entry[i].total_price}  </li>`
+       
+  firstNode.innerHTML = firstNode.innerHTML + inputData; 
+  
+                }
+
+
+                console.log("helloooo ");
+
+     
+
+            }
+
+   }
+
+   
         
 
     </script>

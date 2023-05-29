@@ -1,8 +1,11 @@
 const razorpay= require('razorpay')
 require('dotenv').config();
-
+const dbinfo = require('../util/userdatabase')
 const order = require('../models/orders');
 const Order = require('../models/orders');
+const expenses = require('../models/expense');
+const users = require('../models/user');
+const { Sequelize } = require('sequelize');
 
 exports.purchasepremiumship = async(req,res)=>{
     try{
@@ -68,5 +71,32 @@ exports.updateTransactionstatus= async (req,res)=>{
     catch(err){
 console.log(err);
     }
+}
+
+exports.fetcHdata = async (req,res)=>{
+  try{
+  const entry= []
+  const result = await users.findAll({
+    attributes: ['id', 'name', [Sequelize.fn('SUM', Sequelize.col('expenses.price')), 'total_price']],
+    include: [{
+      model: expenses,
+      attributes: [],
+      required: true
+    }],
+    group: ['users.id', 'users.name']
+  })
+      result.forEach(item=>{
+        console.log("**",item.dataValues)
+        entry.push({
+          id: item.dataValues.id,
+          name: item.dataValues.name,
+          total_price: item.dataValues.total_price
+        });
+    } )
+    res.status(200).json({ entry });
+}
+catch(error){
+  console.log(error);
+}
 }
           

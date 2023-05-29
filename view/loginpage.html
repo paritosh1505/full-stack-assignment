@@ -39,11 +39,15 @@
                     }
                     const res = await axios.post('http://localhost:3000/login',login).then((response)=>{
                     var value = document.getElementById("Block");
+                    console.log("%%$%$%44",response);
+
                     if(response.status==200)
                     console.log("******",response)
                     localStorage.setItem('token',response.data.token);
-
-                       window.location.href= "expensepage"
+                        
+            
+                         window.location.href= "expensepage";
+                      
                     })
 
                     . catch((err)=>{
@@ -51,6 +55,7 @@
                        val.innerHTML= err.response.data.message;
                         document.body.innerHTML += `<div style="colour:red;">${err}</div>`;
                     })
+                    
         
                 }
             </script>

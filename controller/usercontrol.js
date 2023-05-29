@@ -49,10 +49,8 @@ exports.login= async(req,res,next)=>{
             const password= req.body.password;
             const emailCheck = await table.findOne({
                 where: {
-                  emailid: email
-                }
+                  emailid: email                }
               });
-              console.log("####",emailCheck.password);
         if(!emailCheck){
             res.status(404).json({success:false, message:"User not found"})
         }
@@ -68,7 +66,7 @@ exports.login= async(req,res,next)=>{
              bcrypt.compare( password,emailCheck.password, (err,result)=>{
               console.log("#$#$#", result);
               if (result==true) {
-                 res.status(200).json({success: true , message:"User logged in successfully",token: generateToken(emailCheck.id,emailCheck.name)})
+                 res.status(200).json({success: true ,message:"User logged in successfully",token: generateToken(emailCheck.id,emailCheck.name)})
                // return;
                   }
             else 
@@ -104,9 +102,11 @@ exports.login= async(req,res,next)=>{
       }
       }
 
-      exports.getdata= (req,res,next)=>{
+      exports.getdata= async (req,res,next)=>{
         console.log("***")
-        expensetable.findAll({where :{userId: req.user.id}}).then((response)=>{
+        const ordertable = await table.findOne({where: {id: req.user.id}})
+        
+       await expensetable.findAll({where :{userId: req.user.id}}).then((response)=>{
         const sqldata=[];
         response.forEach((item)=>{
             sqldata.push({
@@ -117,11 +117,12 @@ exports.login= async(req,res,next)=>{
             })
           
         })
-        console.log(sqldata);
-        res.status(201).json({newentry:sqldata});
+        res.status(201).json({newentry:sqldata, ispremiumuser: ordertable.ispremiumuser});
         }).catch((error)=>{
             res.status(404).json({error:error});
         });
+        
+       
     }
 
     exports.deleteentry = async(req,res,next)=>{
