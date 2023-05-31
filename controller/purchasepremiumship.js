@@ -74,29 +74,28 @@ console.log(err);
 }
 
 exports.fetcHdata = async (req,res)=>{
-  try{
-  const entry= []
-  const result = await users.findAll({
-    attributes: ['id', 'name', [Sequelize.fn('SUM', Sequelize.col('expenses.price')), 'total_price']],
-    include: [{
-      model: expenses,
-      attributes: [],
-      required: true
-    }],
-    group: ['users.id', 'users.name']
-  })
-      result.forEach(item=>{
-        console.log("**",item.dataValues)
-        entry.push({
-          id: item.dataValues.id,
-          name: item.dataValues.name,
-          total_price: item.dataValues.total_price
+   
+    try {
+        const entry= []
+        const user = await users.findAll({
+            attributes: ['id', 'name', 'total_expense'],
+            order:  [['total_expense','DESC']]
         });
-    } )
-    res.status(200).json({ entry });
-}
-catch(error){
-  console.log(error);
-}
+        
+        user.forEach(item=>{
+            console.log("**",item)
+            entry.push({
+              id: item.dataValues.id,
+              name: item.dataValues.name,
+              total_price: item.dataValues.total_expense
+            });
+        } )
+        console.log("@#@$#%$^%$^%", entry);
+        res.status(200).json({ entry });
+        
+    } catch (error) {
+        console.log("%%%%%%%%%%%%%%%%",error)
+    }
+  
 }
           

@@ -13,7 +13,8 @@ const  userlist= database.define('users',{
         unique: true,
     },
     password: sequelize.STRING,
-    ispremiumuser: sequelize.BOOLEAN
+    ispremiumuser: sequelize.BOOLEAN,
+    total_expense: sequelize.INTEGER
 });
 
 module.exports= userlist;

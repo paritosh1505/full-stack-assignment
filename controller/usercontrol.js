@@ -81,11 +81,13 @@ exports.login= async(req,res,next)=>{
           console.error('Error retrieving entry:', error);
         }
       }
+      
+      
+exports.addexpense= async(req,res,next)=>{
+  console.log("***",req.body)
 
-      exports.addexpense= async(req,res,next)=>{
         try{
-          console.log("***",req.body)
-          const idval= req.user;
+          const idval= req.user.id;
           const price = req.body.price;
           const description= req.body.description;
           const category = req.body.category;
