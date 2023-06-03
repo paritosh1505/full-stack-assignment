@@ -4,6 +4,7 @@ const table= require('../models/user');
 const expensetable= require('../models/expense');
 const bcrypt = require('bcrypt');
 const token= require('jsonwebtoken');
+const sequel = require('../util/userdatabase')
 
 exports.loginsend=(req,res,next)=>{
   const file= path.join(__dirname,'../view/loginpage.html');
@@ -17,6 +18,10 @@ exports.postfile= (req,res,next)=>{
 exports.expensepagesend=(req,res,next)=>{
   const expensefile= path.join(__dirname,'../view/expensepage.html');
   res.sendFile(expensefile);
+}
+exports.recoverPage=(req,res,next)=>{
+  const recoveryFile= path.join(__dirname,'../view/recoverPassword.html');
+  res.sendFile(recoveryFile);
 }
 
 exports.adduser= async(req,res,next)=>{
@@ -85,7 +90,7 @@ exports.login= async(req,res,next)=>{
       
 exports.addexpense= async(req,res,next)=>{
   console.log("***",req.body)
-
+  const t = await sequel.transaction();
         try{
           const idval= req.user.id;
           const price = req.body.price;
@@ -96,8 +101,26 @@ exports.addexpense= async(req,res,next)=>{
              description:description,
              category:category,
              userId:req.user.id
-          });
-          res.status(200).json({newdata: data}) 
+          }, {transaction : t}).then(expense =>{
+            const totalexpense = Number(req.user.total_expense)+ Number(price);
+            table.update({
+              total_expense:totalexpense
+            },{
+              where: {id: req.user.id},
+              transaction: t
+            }).then(async()=>{
+              await t.commit()
+              res.status(200).json({expense:expense})
+            })
+            .catch(async (err)=>{
+              await t.rollback()
+              return res.status(500).json({success: false, error:err})
+            })
+          }).catch(async (err)=>{
+            await t.rollback()
+            return res.status(500).json({success: false, error:err})
+          })
+          // res.status(200).json({newdata: data}) 
       }
       catch(err){
       console.log(err);
@@ -128,18 +151,38 @@ exports.addexpense= async(req,res,next)=>{
     }
 
     exports.deleteentry = async(req,res,next)=>{
+      const t = await sequel.transaction()
        const id= req.params.id;
+       const price = req.query.price
+       console.log("***%%%%%%", price);
+
        expensetable.destroy({
         where:{
           "id": id,
           userId: req.user.id
         }
-       }).then((noofrows)=>{
+       },{ transaction:t}).then((noofrows)=>{
         if(noofrows===0){
           return res.status(404).json({success: false, message: 'Expense dosent belongs to the user'})
         }
-       return res.status(200).json({success: true, message:'Deleted successfully'})
-       }).catch((err)=>{
+        const totalexpense = Number(req.user.total_expense)-Number(price);
+        table.update({
+          total_expense:totalexpense
+        },{
+          where: {id: req.user.id},
+          transaction :t 
+        }).then(async()=>{
+          await t.commit()
+          return res.status(200).json({success: true, message:'Deleted successfully'})
+        })
+        .catch(async (err)=>{
+          await t.rollback()
+          return res.status(500).json({success: false, error:err})
+        })
+        // return res.status(200).json({success: true, message:'Deleted successfully'})
+      
+       }).catch(async(err)=>{
+        await t.rollback()
         console.log(err);
         res.status(500).json({success:true, message:'failed'});
        })

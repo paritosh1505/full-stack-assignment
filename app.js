@@ -3,7 +3,9 @@ const app= express();
 const path= require('path');
 const userRouter = require('./router/usersignup')
 const purchaseRouter = require('./router/purchase')
-const premiumFeatures= require('./router/premiumFeatures')
+const passeord = require('./router/recpassword')
+
+// const premiumFeatures= require('./router/premiumFeatures')
 const sequel = require('./util/userdatabase');
 const cors = require('cors');
 const bodyParser= require('body-parser');
@@ -15,7 +17,9 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use('/', userRouter);
 app.use('/purchase', purchaseRouter);
-app.use('/premiumfeature',premiumFeatures );
+app.use('/password', passeord);
+
+
 
 app.use(cors());
 

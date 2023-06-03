@@ -6,7 +6,8 @@ router.get('/', routecontrol.postfile)
 router.get('/loginpage.html',routecontrol.loginsend);
 router.get('/signup.html',routecontrol.postfile);
 router.get('/expensepage',routecontrol.expensepagesend);
-router.get('/data' ,userauthenticate.authorisation ,routecontrol.getdata);
+router.get('/recoverPassword', routecontrol.recoverPage);
+router.get('/data' , userauthenticate.authorisation ,routecontrol.getdata);
 router.post('/signup', routecontrol.adduser);
 router.post('/login',routecontrol.login);
 router.post('/expense',userauthenticate.authorisation, routecontrol.addexpense);

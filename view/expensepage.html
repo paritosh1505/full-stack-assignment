@@ -67,9 +67,9 @@
                 }
                // totalValue += event.target.form.cost.value;
                 const data = await axios.post('http://localhost:3000/expense', details,{headers: {"Authorisation": token_1}})
-                console.log("@#@#@#@##@#@###@#@",data.data.newdata );
+                console.log("@#@#@#@##@#@###@#@",data.data.expense);
                     if(data.status===200){
-                      showOnScreen(data.data.newdata)
+                      showOnScreen(data.data.expense)
                     }
             }
             catch(err){
@@ -91,16 +91,17 @@
 
       const firstNode = document.getElementById('list');
       const inputData= `<li id=${data.id}> ${data.price} - ${data.description} - ${data.category} ====>
-                          <button class="bg-slate-500 border text-red-100 w-36 rounded-xl hover:bg-blue-600 mb-2" onclick="deleteUser('${data.id}')">Delete user</button>
+                          <button class="bg-slate-500 border text-red-100 w-36 rounded-xl hover:bg-blue-600 mb-2" onclick="deleteUser('${data.id}', '${data.price}')">Delete user</button>
                              </li>`
        
   firstNode.innerHTML = firstNode.innerHTML + inputData; 
-  calculateTotalcost();
         }
 
          window.addEventListener('DOMContentLoaded', async()=>{
             const token= localStorage.getItem('token');
-           await axios.get("http://localhost:3000/data", {headers: {"Authorisation": token}}).then((response)=>{
+           await axios.get("http://localhost:3000/data", {headers: {"Authorisation": token}}).then(async(response)=>{
+           
+            console.log("##################",response.data);
             if(response.data.ispremiumuser=== true){
         
             premiumFeatures();
@@ -114,18 +115,19 @@
   })
 
 
-    async function deleteUser(id){
-        console.log("******************",id);
+    async function deleteUser(id, price){
+        console.log("******************",price);
         const token = localStorage.getItem('token');
-       await axios.delete(`http://localhost:3000/delete/${id}`, {headers: {"Authorisation": token}})
+       await axios.delete(`http://localhost:3000/delete/${id}?price=${price}`, {headers: {"Authorisation": token}})
           removeuserfromScreen(id);
 
     }
 
     function removeuserfromScreen(listid){
+       // console.log(,listid);
         const list= document.getElementById('list');
         const deletelist = document.getElementById(listid);
-        console.log("%%", deletelist);
+        console.log("~~~~~~~~~~~~~~~~~~~~", deletelist);
             list.removeChild(deletelist)
     }
                      
@@ -167,21 +169,6 @@ document.getElementById('premium').onclick = async function(e){
     });
 
 }
-async function calculateTotalcost(){
-    const token_1 = localStorage.getItem('token')
-    const items = document.querySelectorAll('#list li')
-    let sum = 0;
-    items.forEach(item =>{
-        const cost = parseFloat(item.innerText.split('-')[0].trim());
-        sum += cost;
-    });
-    const totalSum = {
-        totalSum : sum
-    };
-    const response = await axios.put('http://localhost:3000/premiumfeature/calculatetotal',totalSum,{headers: {"Authorisation": token_1}});
-    console.log("$$$$$$$",sum);
-}
-
 
    function premiumFeatures(){
    // e.preventDefault()
