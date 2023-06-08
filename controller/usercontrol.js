@@ -29,6 +29,7 @@ exports.adduser= async(req,res,next)=>{
     try{
     const name = req.body.username;
     const email= req.body.email;
+    
     const password = req.body.password;
     const saltrounds=10;
     bcrypt.hash (password, saltrounds , async(err,hash)=>{

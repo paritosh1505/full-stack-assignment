@@ -14,20 +14,21 @@
             <a class="text-slate-50 px-20" href="loginpage.html">Existing User login</a>
           </nav>
     
-    <div class="bg-orange-500 h-screen flex justify-center" >
+    <div class="bg-white h-screen flex justify-center" >
         <form action="/" method="POST" >
             <h2 class="text-slate-50 text-center py-4">Enter Details</h2>
+            <h3 id="warningMessage" style="color: red; display: none;">All fields are necessary to fill.</h3>
             <div class="text-center mx-auto px-6 py-5 space-x-2">
-                <label  for="username" name="username">UserName</label>
-                <input type="text" id="username" name="username" required>
+                <label  for="username">UserName</label>
+                <input type="text" id="username" name="username" required >
             </div>
             <div class="text-center mx-auto px-6 py-5 space-x-6">
-                <label  id="emailid" name="email">E-mail</label>
-                <input type="text" id="emailid" name="email" required>
+                <label for="emailid">E-mail</label>
+                <input type="text" id="emailid" name="email" required >
             </div>
               <div class="text-center mx-auto px-6 py-5 space-x-2">
-                <label  id="password" name="password">Password</label>
-                <input type="password" id="password" name="password" required>
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required >
             </div>
             <div class="text-center mx-auto hover:bg-white">
                 <button  onClick="signup(event)">SignUp</button>
@@ -44,6 +45,14 @@
                 username: event.target.form.username.value,
                 email: event.target.form.email.value,
                 password: event.target.form.password.value
+            }
+
+            if (event.target.form.username.value===''||event.target.form.email.value==='' || event.target.form.password.value===''){
+                document.getElementById('warningMessage').style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById('warningMessage').style.display = 'none';
+                }, 500);
+                return;
             }
             const response = await axios.post('http://localhost:3000/signup',signupDetails)
             if(response.status=== 200){

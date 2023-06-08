@@ -12,6 +12,7 @@ const bodyParser= require('body-parser');
 const userlist = require('./models/user');
 const expenselist = require('./models/expense');
 const Order = require('./models/orders');
+const forgotpassword = require('./models/forgotpassword');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -25,6 +26,11 @@ app.use(cors());
 
 userlist.hasMany(expenselist);
 expenselist.belongsTo(userlist);
+
+userlist.hasMany(forgotpassword);
+forgotpassword.belongsTo(userlist);
+
+
 
 userlist.hasMany(Order);
 Order.belongsTo(userlist);

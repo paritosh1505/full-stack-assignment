@@ -20,8 +20,8 @@ exports.purchasepremiumship = async(req,res)=>{
             if(err){
                 throw new Error(JSON.stringify(err));
             }
-            console.log("****************")
-            req.user.createOrder({ orderid: order.id, status: 'hello'}).then(()=>{
+            console.log("****************", req.user)
+            req.user.createOrder({ orderid: order.id, status: 'pending'}).then(()=>{
                 return res.status(201).json({order,key_id:rzp.key_id})
             }).catch(err=>{
                 throw new Error(err)
