@@ -1,9 +1,10 @@
-'<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
     <title>document</title>
 </head>
@@ -41,12 +42,16 @@
             
             </div>
         </form>
+       <button onclick="download(event)" id="download-button" disabled class="fixed bottom-10 right-4">
+        <i class="fa-solid fa-download fa-2xl"></i></button>
         
             <ul id="list"></ul>
 
             <ul id="leaders"></ul>
         
     </div>
+
+
     
     
     
@@ -217,22 +222,16 @@ document.getElementById('premium').onclick = async function(e){
 
   
                 }
-
-
                 console.log("helloooo ");
-
-     
-
             }
 
    }
 
    
-        
-
     </script>
   <script src="https://cdn.tailwindcss.com"></script>  
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+      
 </body>
 </html>
