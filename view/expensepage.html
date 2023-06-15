@@ -10,8 +10,14 @@
 </head>
 <body>
     <nav class="bg-cyan-900 h-16 flex justify-between items-center">
-        <h1 class="bg-cyan-900 text-slate-50 text-center h-8 mt-3 text-lg mr-3">User Expenses</h1>
+        <!-- <h1 class="bg-cyan-900 text-slate-50 text-center h-8 mt-3 text-lg mr-3">User Expenses</h1> -->
         <button class="h-6 border text-slate-50 w-36 rounded-xl hover:bg-blue-600" id="premium" name="premium">Buy Premium</button>
+        <div class="my-4">
+            <!-- <button onclick="showAllEntries()">All</button> -->
+            <button class="h-6 border text-slate-50 w-36 rounded-xl hover:bg-blue-600" onclick="showDailyEntries()">Daily</button>
+            <button class="h-6 border text-slate-50 w-36 rounded-xl hover:bg-blue-600" onclick="showWeeklyEntries()">Weekly</button>
+            <button class="h-6 border text-slate-50 w-36 rounded-xl hover:bg-blue-600" onclick="showMonthlyEntries()">Monthly</button>
+        </div>
       </nav>
       
 <div class="bg-blue-300 h-screen flex flex-col items-center">
@@ -44,6 +50,10 @@
         </form>
        <button onclick="download(event)" id="download-button" disabled class="fixed bottom-10 right-4">
         <i class="fa-solid fa-download fa-2xl"></i></button>
+
+        
+
+
         
             <ul id="list"></ul>
 
@@ -62,15 +72,12 @@
             try{
                 event.preventDefault()
                 const token_1= localStorage.getItem('token');
-                //const username = decryptTokenValue(token_1);
                 
-                //console.log(event.target.form.price.value);
                 const details={
                     price:event.target.form.cost.value,
                     description: event.target.form.description.value,
                     category: event.target.form.category.value,
                 }
-               // totalValue += event.target.form.cost.value;
                 const data = await axios.post('http://localhost:3000/expense', details,{headers: {"Authorisation": token_1}})
                 console.log("@#@#@#@##@#@###@#@",data.data.expense);
                     if(data.status===200){
@@ -197,6 +204,9 @@ document.getElementById('premium').onclick = async function(e){
             premButton.appendChild(btn);
             // //userbar.appendChild(btn);
 
+            const downloadButton = document.getElementById('download-button');
+            downloadButton.removeAttribute('disabled');
+
             document.getElementById('leaderboard').onclick = async function(e){
                 e.preventDefault()
 
@@ -227,7 +237,34 @@ document.getElementById('premium').onclick = async function(e){
 
    }
 
-   
+  async function download(event){
+    const token = localStorage.getItem('token')
+    //console.log("@#@#@#@#",token)
+    await axios.get('http://localhost:3000/premiumfeatures/download', { headers: {"Authorisation" : token}})
+    .then(async (response)=>{
+        if(response.status===200){
+            var a= document.createElement("a");
+            a.href = response.data.fileUrl;
+            a.download = 'myexpenses.csv';
+            a.click();
+            await axios.get('http://localhost:3000/premiumfeatures/getData', {headers : {"Authorisation": token}})
+            .then((response)=>{
+                console.log("&*&*&*&*", response.data.newentry[0]);
+                showOnScreen(response.data.newentry[0].fileUrl)
+
+            })
+            
+        }else{
+            throw new Error(response.data.message)
+        }
+    
+    })
+    .catch((err)=>{
+        throw new Error(err);
+    })
+   }
+
+
     </script>
   <script src="https://cdn.tailwindcss.com"></script>  
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>

@@ -13,6 +13,8 @@ const client = sib.ApiClient.instance
 
 const apiKey = client.authentications['api-key']
 const transEmailApi =  new sib.TransactionalEmailsApi()
+
+
 exports.sendmail = async (req,res,next)=>{
     try{
 

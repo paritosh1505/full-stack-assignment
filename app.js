@@ -4,6 +4,7 @@ const path= require('path');
 const userRouter = require('./router/usersignup')
 const purchaseRouter = require('./router/purchase')
 const passeord = require('./router/recpassword')
+const premiumFeatures = require('./router/premium_features')
 
 // const premiumFeatures= require('./router/premiumFeatures')
 const sequel = require('./util/userdatabase');
@@ -13,12 +14,14 @@ const userlist = require('./models/user');
 const expenselist = require('./models/expense');
 const Order = require('./models/orders');
 const forgotpassword = require('./models/forgotpassword');
+const DownloadedFiles = require('./models/downloadedFiles');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use('/', userRouter);
 app.use('/purchase', purchaseRouter);
 app.use('/password', passeord);
+app.use('/premiumfeatures', premiumFeatures);
 
 
 
@@ -34,6 +37,9 @@ forgotpassword.belongsTo(userlist);
 
 userlist.hasMany(Order);
 Order.belongsTo(userlist);
+
+userlist.hasMany(DownloadedFiles);
+DownloadedFiles.belongsTo(userlist)
 
 sequel.sync().then(result => {
     app.listen(3000);
