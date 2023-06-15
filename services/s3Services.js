@@ -1,9 +1,10 @@
 const AWS = require('aws-sdk');
+require('dotenv').config();
 
 const uploadToS3 = (data, fileName)=>{
     const Bucket_Name = 'expansetraker';
-    const IAMUSER_KEY = 'AKIAYZ3JJBDG7OXDQGUC';
-    const IAMUSER_SECRETKEY ='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';
+    const IAMUSER_KEY = process.env.IAMUSER_KEY;
+    const IAMUSER_SECRETKEY = process.env.IAMUSER_SECRETKEY;
 
     let s3bucket = new AWS.S3 ({
         accessKeyId: IAMUSER_KEY,
