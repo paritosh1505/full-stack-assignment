@@ -8,6 +8,7 @@ router.get('/signup.html',routecontrol.postfile);
 router.get('/expensepage',routecontrol.expensepagesend);
 router.get('/recoverPassword', routecontrol.recoverPage);
 router.get('/data' , userauthenticate.authorisation ,routecontrol.getdata);
+router.get('/monthlydata' , userauthenticate.authorisation ,routecontrol.getmonthlyData);
 router.post('/signup', routecontrol.adduser);
 router.post('/login',routecontrol.login);
 router.post('/expense',userauthenticate.authorisation, routecontrol.addexpense);

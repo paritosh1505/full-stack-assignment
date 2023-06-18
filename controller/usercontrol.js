@@ -5,6 +5,7 @@ const expensetable= require('../models/expense');
 const bcrypt = require('bcrypt');
 const token= require('jsonwebtoken');
 const sequel = require('../util/userdatabase')
+const { Op } = require('sequelize');
 
 exports.loginsend=(req,res,next)=>{
   const file= path.join(__dirname,'../view/loginpage.html');
@@ -16,7 +17,7 @@ exports.postfile= (req,res,next)=>{
     res.sendFile(filepath);
 }
 exports.expensepagesend=(req,res,next)=>{
-  const expensefile= path.join(__dirname,'../view/expensepage.html');
+  const expensefile= path.join(__dirname,'../view/test.html');
   res.sendFile(expensefile);
 }
 exports.recoverPage=(req,res,next)=>{
@@ -90,7 +91,7 @@ exports.login= async(req,res,next)=>{
       
       
 exports.addexpense= async(req,res,next)=>{
-  console.log("***",req.body)
+  //console.log("***",req.param)
   const t = await sequel.transaction();
         try{
           const idval= req.user.id;
@@ -129,10 +130,30 @@ exports.addexpense= async(req,res,next)=>{
       }
 
       exports.getdata= async (req,res,next)=>{
-        console.log("***")
+        console.log("%^%^%%^", req.query.date);
+        console.log("Formatted Date:", new Date(req.query.date).toLocaleDateString());
+
+        const dateString = req.query.date;
+        const dateObj = new Date(dateString);
+        const date = dateObj.toISOString().split('T')[0];
+        console.log("Date:", date);
+        const dateToFetch = date;
+
+        const startTime = new Date(dateToFetch);
+        const endTime = new Date(dateToFetch);
+        endTime.setDate(endTime.getDate() + 1); 
+        console.log("@#@#@#", startTime );
+        console.log("@@@", endTime );
+
         const ordertable = await table.findOne({where: {id: req.user.id}})
         
-       await expensetable.findAll({where :{userId: req.user.id}}).then((response)=>{
+ await expensetable.findAll({where :
+        {userId: req.user.id, 
+          createdAt: {
+            [Op.gte]: startTime,
+            [Op.lte]: endTime
+          }}}).then((response)=>{
+            console.log("*&**&",response)
         const sqldata=[];
         response.forEach((item)=>{
             sqldata.push({
@@ -143,6 +164,7 @@ exports.addexpense= async(req,res,next)=>{
             })
           
         })
+        console.log("&*&*&", sqldata);
         res.status(201).json({newentry:sqldata, ispremiumuser: ordertable.ispremiumuser});
         }).catch((error)=>{
             res.status(404).json({error:error});
@@ -187,6 +209,27 @@ exports.addexpense= async(req,res,next)=>{
         console.log(err);
         res.status(500).json({success:true, message:'failed'});
        })
+    }
+
+    exports.getmonthlyData = async (req,res,next)=>{
+      console.log("request", req.query.month);
+      const test = req.query.month;
+      const Month = test.split('/')[0];
+      const year = test.split('/')[1];
+
+      await expensetable.findAll({
+        where: {
+          createdAt: {
+            [Op.like]: 'year-Month%'
+          }
+        }
+      }).then((response) =>{
+        console.log("responseeeee",response);
+      }).catch((err)=>{
+        throw new Error(err);
+      })
+
+
     }
 
 

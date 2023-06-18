@@ -1,74 +1,93 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    
-    <title>document</title>
-</head>
-<body>
-    <nav class="bg-cyan-900 h-16 flex justify-between items-center">
-        <!-- <h1 class="bg-cyan-900 text-slate-50 text-center h-8 mt-3 text-lg mr-3">User Expenses</h1> -->
-        <button class="h-6 border text-slate-50 w-36 rounded-xl hover:bg-blue-600" id="premium" name="premium">Buy Premium</button>
-        <div class="my-4">
-            <!-- <button onclick="showAllEntries()">All</button> -->
-            <button class="h-6 border text-slate-50 w-36 rounded-xl hover:bg-blue-600" onclick="showDailyEntries()">Daily</button>
-            <button class="h-6 border text-slate-50 w-36 rounded-xl hover:bg-blue-600" onclick="showWeeklyEntries()">Weekly</button>
-            <button class="h-6 border text-slate-50 w-36 rounded-xl hover:bg-blue-600" onclick="showMonthlyEntries()">Monthly</button>
-        </div>
-      </nav>
-      
-<div class="bg-blue-300 h-screen flex flex-col items-center">
-    <form class="bg-teal-800 h-72 m justify-center inline-block mb-4">
-            <div class="space-x-10 py-5 px-4">
-                <label for="cost" name="cost">Price</label>
-                <input class="rounded-lg" type="text" id="cost" name= "cost"> 
-            </div>
-            <div class="space-x-1 py-5 px-4">
-                <label for="description" name="description">Description</label>
-                <input class="rounded-lg"type="text" id="description" name="description">
-            </div>
-            <div class="space-x-9 py-5 px-4">
-                <label for="category" name="category">Category</label>
-                <select class="rounded-lg" name="category" id="category" class ="form-control">
-                    <option value="none"> </option>
-                    <option value="clothing">Clothes</option>
-                    <option value="accessories">Accessories</option>
-                    <option value="electronics">Electronics</option>
-                    <option value="grocery">Grocery</option>
-                    <option value="selfcare">Skim&haircare</option>
-                    <option value="food">Others</option>
-                    <option value="travel">Travel</option>
-                  </select>
-            </div>
-            <div class="text-center mx-auto py-4 flex justify-between" id ="SubmitButton">
-                <button class="bg-slate-500 text-red-100 w-35 rounded-xl hover:bg-blue-600 items-center ml-4" onclick="addexpense(event)">AddExpense</button>
-            
-            </div>
-        </form>
-       <button onclick="download(event)" id="download-button" disabled class="fixed bottom-10 right-4">
-        <i class="fa-solid fa-download fa-2xl"></i></button>
 
+
+
+const prevDateBtn = document.getElementById('prevDateBtn');
+    const nextDateBtn = document.getElementById('nextDateBtn');
+    const dateDisplay = document.getElementById('dateDisplay');
+
+    const prevMonth = document.getElementById('prevMonthBtn');
+    const nextMonth = document.getElementById('nextMonthBtn');
+    const monthDisplay = document.getElementById('monthDisplay');
+    
+     
+    // Define the current date
+    let currentDate = new Date();
+
+    function printCurrentDate() {
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        dateDisplay.textContent = currentDate.toLocaleDateString(undefined, options);
+
+      }
+      printCurrentDate();
+
+    // Function to update the date display
+   async function updateDateDisplay() {
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      dateDisplay.textContent = currentDate.toLocaleDateString(undefined, options);
+      const token = localStorage.getItem('token')
+
+      await axios.get('http://localhost:3000/data', {headers: {"Authorisation": token}, params: {date: currentDate.toISOString()}}).then((response) => {
         
+       for(var i=0;i<response.data.newentry.length;i++){
+        showOnScreen(response.data.newentry[i])
 
+       }
+       
+      }).catch((err)=>{
+        throw new Error(err);
+      }
+      )
 
-        
-            <ul id="list"></ul>
+    }
 
-            <ul id="leaders"></ul>
-        
-    </div>
+     
 
+    // Function to navigate to the previous date
+    function goToPreviousDate() {
+      currentDate.setDate(currentDate.getDate() - 1);
+      const firstNode = document.getElementById('list');
+      firstNode.innerHTML=''
+      updateDateDisplay();
+    }
 
-    
-    
-    
-    <script>
+    // Function to navigate to the next date
+    function goToNextDate() {
+      currentDate.setDate(currentDate.getDate() + 1);
+      const firstNode = document.getElementById('list');
+      firstNode.innerHTML=''
+      updateDateDisplay();
+    }
 
+    // Add click event listeners to the buttons
+    prevDateBtn.addEventListener('click', goToPreviousDate);
+    nextDateBtn.addEventListener('click', goToNextDate);
 
-         async function addexpense(event){
+    prevMonthBtn.addEventListener('click', goToPreviousMonth);
+    nextMonthBtn.addEventListener('click', goToNextMonth);
+
+    function showForm(event) {
+        try{
+            event.preventDefault
+            var formContainer = document.getElementById('formContainer');
+        formContainer.classList.toggle('hidden');
+    }
+    catch(error){
+        throw new Error(error)
+    }
+    };
+
+    function showMenu(event) {
+        try{
+        event.preventDefault()
+      var menuContainer = document.getElementById('menuContainer');
+      menuContainer.classList.toggle('hidden');
+        }
+        catch(error){
+            throw new Error(error)
+        }
+    };
+
+    async function addexpense(event){
             try{
                 event.preventDefault()
                 const token_1= localStorage.getItem('token');
@@ -109,11 +128,15 @@
   firstNode.innerHTML = firstNode.innerHTML + inputData; 
         }
 
-         window.addEventListener('DOMContentLoaded', async()=>{
+        window.addEventListener('DOMContentLoaded', async()=>{
+            const firstNode = document.getElementById('list');
+            firstNode.innerHTML= " ";
+
             const token= localStorage.getItem('token');
-           await axios.get("http://localhost:3000/data", {headers: {"Authorisation": token}}).then(async(response)=>{
+            console.log("!!!", currentDate);
+           await axios.get("http://localhost:3000/data", {headers: {"Authorisation": token}, params:{date:currentDate}}).then(async(response)=>{
            
-            // console.log("##################",response.data);
+            console.log("##################",response.data);
             if(response.data.ispremiumuser=== true){
         
             premiumFeatures();
@@ -126,9 +149,8 @@
     }).catch(err=>console.log(err))
   })
 
-
-    async function deleteUser(id, price){
-        console.log("******************",price);
+  async function deleteUser(id, price){
+        console.log("******************", price);
         const token = localStorage.getItem('token');
        await axios.delete(`http://localhost:3000/delete/${id}?price=${price}`, {headers: {"Authorisation": token}})
           removeuserfromScreen(id);
@@ -142,8 +164,9 @@
         console.log("~~~~~~~~~~~~~~~~~~~~", deletelist);
             list.removeChild(deletelist)
     }
-                     
-document.getElementById('premium').onclick = async function(e){
+
+
+    document.getElementById('premium').onclick = async function(e){
     const token = localStorage.getItem('token')
     console.log("%^%%^", token)
     //const response = await axios.get('http://localhost:3000/purchasepremiumship');
@@ -181,6 +204,74 @@ document.getElementById('premium').onclick = async function(e){
     });
 
 }
+     
+
+function monthlyexpenses(event){
+
+    const divElement = document.getElementById('monthlyexpenses')
+    divElement.style.display = 'flex';
+    var dailyexpenses = document.getElementById('dailyExpenses');
+    dailyexpenses .classList.add('hidden');
+    var menuContainer = document.getElementById('menuContainer');
+    menuContainer.classList.add('hidden');
+
+   
+
+    const options = { year: 'numeric', month: 'long' };
+    monthDisplay.textContent = currentDate.toLocaleDateString(undefined, options);
+
+    console.log(monthDisplay.textContent);
+
+
+}
+
+
+function goToPreviousMonth(){
+    const currentMonth = currentDate.getMonth();
+
+    currentDate.setMonth(currentDate.getMonth() - 1);
+    const firstNode = document.getElementById('list');
+    firstNode.innerHTML=''
+    updateMonth()
+
+
+}
+
+function goToNextMonth(){
+    const currentMonth = currentDate.getMonth();
+
+    currentDate.setMonth(currentDate.getMonth() + 1);
+    const firstNode = document.getElementById('list');
+    firstNode.innerHTML=''
+    updateMonth()
+
+
+}
+async function updateMonth(){
+    const options = { year: 'numeric', month: 'long' };
+    monthDisplay.textContent = currentDate.toLocaleDateString(undefined, options);
+
+    const options1 = { year: 'numeric', month: 'numeric' };
+    var test = monthDisplay.textContent
+    test = currentDate.toLocaleDateString(undefined, options1);
+    console.log("month val",test);
+    const token = localStorage.getItem('token');
+
+    await axios.get('http://localhost:3000/monthlydata', {headers: {"Authorisation": token}, params: {month: test}}).then((response) => {
+        
+
+    console.log("response of request", response);
+    //    for(var i=0;i<response.data.newentry.length;i++){
+    //     showOnScreen(response.data.newentry[i])
+
+    //    }
+       
+      }).catch((err)=>{
+        throw new Error(err);
+      }
+      )
+
+}
 
    function premiumFeatures(){
    // e.preventDefault()
@@ -188,7 +279,7 @@ document.getElementById('premium').onclick = async function(e){
         const userbar = document.getElementById('premium');
         const premButton = document.getElementById('SubmitButton');
             const span = document.createElement('span');
-            span.style.color = 'white';
+            span.style.color = 'black';
             const premium = document.createTextNode('You are a premium User');
             span.append(premium);
             userbar.parentNode.replaceChild(span,userbar)
@@ -264,11 +355,3 @@ document.getElementById('premium').onclick = async function(e){
     })
    }
 
-
-    </script>
-  <script src="https://cdn.tailwindcss.com"></script>  
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-      
-</body>
-</html>
